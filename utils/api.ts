@@ -55,7 +55,7 @@ export class ApiUtil {
         }
     }
 
-    async post({ url, payload }: { url: string, payload: any }): Promise<any> {
+    async post({ url, payload }: { url: string, payload?: any }): Promise<any> {
         const headers = await this.getHeaders()
         const r = await axios.post(`${API_URL}${url}`, payload, { headers })
         return r?.data
