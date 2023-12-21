@@ -1,16 +1,14 @@
 <template>
     <div class="component-AllFishingPermits">
-        <LoadingIndicator v-if="loading"/>
+        <LoadingIndicator v-if="loading" />
         <div class="permit-list-wrapper">
-            <pre>
-                {{ fishingPermitList }}
-            </pre>
+            <DataTable :headerList="headerList" :dataList="parsedPermitList" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import type { IFishingPermit } from '../../interfaces/fishing-permit.interface'
+import type { IFishingPermit, IFishingPermitWithLink } from '../../interfaces/fishing-permit.interface'
 import apiFishingPermits from '../../utils/api-fishing-permits'
 
 interface AllFishingPermitsData {
@@ -23,6 +21,56 @@ export default {
         fishingPermitList: [],
         loading: false
     }),
+    computed: {
+        headerList() {
+            return [
+                {
+                    name: 'Id',
+                    key: '_id',
+                    isLink: true
+                },
+                {
+                    name: 'Etunimi',
+                    key: 'firstName'
+                },
+                {
+                    name: 'Sukunimi',
+                    key: 'lastName'
+                },
+                {
+                    name: 'Sähköposti',
+                    key: 'email'
+                },
+                {
+                    name: 'Alkamisaika',
+                    key: 'startsAt'
+                },
+                {
+                    name: 'Päättymisaika',
+                    key: 'endsAt'
+                },
+                {
+                    name: 'Ostettu',
+                    key: 'createdAt'
+                },
+                {
+                    name: 'Järvi',
+                    key: 'lakeId'
+                },
+            ]
+        },
+        parsedPermitList(): IFishingPermitWithLink[] {
+            return this.fishingPermitList?.map(permit => {
+                const id = permit?._id || ''
+                const link = `/fishing-permit/${id}`
+
+                return {
+                    ...permit,
+                    link
+                }
+            }) || []
+        },
+    },
     mounted() {
         this.fetchFishingPermits()
     },
@@ -45,6 +93,14 @@ export default {
 
 <style lang="less" scoped>
 .component-AllFishingPermits {
+    .permit-list-wrapper {
 
+        table {
+            // th,
+            // td {
+            //     border: 2px solid var(--green-1);
+            // }
+        }
+    }
 }
 </style>
