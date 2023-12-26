@@ -1,6 +1,6 @@
 <template>
   <div class="component-ButtonWithLoader">
-    <button :type="parsedButtonType" :class="[buttonClass, { loading: loading }]" @click="e => doClick(e)">
+    <button :disabled="disabled" :type="parsedButtonType" :class="[buttonClass, { loading: loading }]" @click="e => doClick(e)">
       <LoadingIndicator v-if="loading" :isFixedSize="false" :isGreen="false" />
       <slot v-else></slot>
 
@@ -16,6 +16,9 @@ export default {
     },
     loading: {
       type: Boolean, default: true
+    },
+    disabled: {
+      type: Boolean, default: false
     },
     buttonClass: {
       type: String, default: 'primary'

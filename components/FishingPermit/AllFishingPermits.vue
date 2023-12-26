@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts">
+import { toLocaleString } from '~/utils/time'
 import type { IFishingPermit, IFishingPermitWithLink } from '../../interfaces/fishing-permit.interface'
 import apiFishingPermits from '../../utils/api-fishing-permits'
 
@@ -64,9 +65,16 @@ export default {
                 const id = permit?._id || ''
                 const link = `/fishing-permit/${id}`
 
+                const startsAtLocal = toLocaleString(permit?.startsAt)
+                const endsAtLocal = toLocaleString(permit?.endsAt)
+                const createdAtLocal = toLocaleString(permit?.createdAt)
+
                 return {
                     ...permit,
-                    link
+                    link,
+                    startsAt: startsAtLocal,
+                    endsAt: endsAtLocal,
+                    createdAt: createdAtLocal
                 }
             }) || []
         },

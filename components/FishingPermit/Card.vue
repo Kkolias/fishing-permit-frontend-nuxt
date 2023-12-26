@@ -21,10 +21,14 @@
         <label for="name">Luvan järvi:</label>
         <p id="name">{{ permitLake }}</p>
       </div>
+      <div class="info-wrapper catches-wrapper">
+        <button class="primary add-catch-btn" @click="setIsModalOpen(true)">Lisää saalis</button>
+      </div>
       <div class="qr-code-wrapper">
         <canvas class="qr-code" id="canvas"></canvas>
       </div>
     </div>
+    <FishingPermitAddCatchModal :permitId="permitId" :modalOpen="modalOpen" @closeModal="setIsModalOpen(false)" @updatePermitData="updatePermitData" />
   </div>
 </template>
 
@@ -33,6 +37,7 @@ import type { PropType } from 'vue';
 import type { IFishingPermit } from '~/interfaces/fishing-permit.interface';
 import { LAKES_BY_ID } from '~/constants/lakes-by-id'
 import * as QRCode from 'qrcode';
+import { toLocaleDateString, toLocaleTimeString } from '~/utils/time'
 // import QRCode from 'qrcode';
 
 export default {
@@ -42,7 +47,13 @@ export default {
       default: () => ({})
     }
   },
+  data: () => ({
+    modalOpen: false
+  }),
   computed: {
+    permitId(): string {
+      return this.permitData?._id || ''
+    },
     permitFirstName(): string {
       return this.permitData?.firstName || ''
     },
@@ -53,10 +64,16 @@ export default {
       return this.permitData?.email || ''
     },
     permitStartsAt(): string {
-      return this.permitData?.startsAt || ''
+      const d = this.permitData?.startsAt || ''
+      if(!d?.length) return '--'
+
+      return `${toLocaleDateString(d)} klo ${toLocaleTimeString(d)}`
     },
     permitEndsAt(): string {
-      return this.permitData?.endsAt || ''
+      const d = this.permitData?.endsAt || ''
+      if(!d?.length) return '--'
+
+      return `${toLocaleDateString(d)} klo ${toLocaleTimeString(d)}`
     },
     permitLake(): string {
       const lakeId = this.permitData?.lakeId || null
@@ -88,7 +105,15 @@ export default {
       }, (error) => {
         if (error) console.error(error)
       })
+    },
+
+    setIsModalOpen(value: boolean): void {
+      this.modalOpen = value
+    },
+    updatePermitData(data: IFishingPermit): void {
+      this.$emit("updatePermitData", data)
     }
+
   }
 }
 </script> 

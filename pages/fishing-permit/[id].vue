@@ -1,19 +1,22 @@
 <template>
     <div class="page-fishing-permit-card">
         <LoadingIndicator v-if="loading" />
-        <FishingPermitCard v-if="!loading" :permitData="permitData" />
+        <FishingPermitCard v-if="!loading" :permitData="permitData" @updatePermitData="setPermitData" />
     </div>
 </template>
 
 <script lang="ts">
 import type { IFishingPermit } from '~/interfaces/fishing-permit.interface';
 import fishingPermitApit from '~/utils/api-fishing-permits'
+import authenticatedView from '../../mixins/authenticatedView.vue'
+
 
 interface FishingPermitByIdPageData {
     permitData: IFishingPermit | null,
     loading: boolean
 }
 export default {
+    mixins: [authenticatedView],
     data: (): FishingPermitByIdPageData => ({
         permitData: null,
         loading: true,
