@@ -1,8 +1,8 @@
 <template>
     <div class="component-Modal" v-if="value">
-        <div class="overlay"></div>
+        <div class="overlay" @click="close()"></div>
         <div class="slot">
-            <button type="button" class="blank close-icon"></button>
+            <button type="button" class="blank close-icon" @click="close()"></button>
             <slot />
         </div>
     </div>

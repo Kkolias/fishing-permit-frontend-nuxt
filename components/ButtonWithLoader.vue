@@ -32,7 +32,7 @@ export default {
   },
   methods: {
     doClick(e: Event): void {
-      e.preventDefault()
+      // e.preventDefault()
       if (!this.loading) {
         this.$emit("click", e)
       }

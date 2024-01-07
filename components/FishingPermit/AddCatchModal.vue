@@ -22,7 +22,7 @@
                         <ErrorHover :errorMessage="errorTexts.weightInGramsString" />
                     </div>
                     <div class="button-wrapper">
-                        <ButtonWithLoader buttonType="submit" :loading="loading" :disabled="!canSubmit" @click="submit">
+                        <ButtonWithLoader buttonType="submit" :loading="loading" :disabled="!canSubmit">
                             <span>
                                 Tallenna
                             </span>
