@@ -1,6 +1,15 @@
 <template>
   <div class="component-FishingPermitCard">
     <div class="permit-wrapper">
+      <div v-if="!permitExpiredError && !permitNotStartedYet" class="timeleft-wrapper">
+        {{ timeLeft }}
+      </div>
+      <div v-if="permitExpiredError" class="timeleft-wrapper">
+        <span class="error">Lupa on vanhentunut</span>
+      </div>
+      <div v-if="permitNotStartedYet" class="timeleft-wrapper">
+        <span class="error">Lupa ei vielä voimassa</span>
+      </div>
       <div class="info-wrapper">
         <label for="name">Nimi:</label>
         <p id="name">{{ permitFirstName }} {{ permitLastName }}</p>
@@ -65,7 +74,7 @@ import type { PropType } from 'vue';
 import type { CatchedFish, IFishingPermit } from '~/interfaces/fishing-permit.interface';
 import { LAKES_BY_ID } from '~/constants/lakes-by-id'
 import * as QRCode from 'qrcode';
-import { toLocaleDateString, toLocaleTimeString } from '~/utils/time'
+import { getMinutesLeftCurrently, isBefore, toLocaleDateString, toLocaleTimeString } from '~/utils/time'
 // import QRCode from 'qrcode';
 
 export default {
@@ -76,7 +85,9 @@ export default {
     }
   },
   data: () => ({
-    modalOpen: false
+    modalOpen: false,
+
+    currentTime: new Date()
   }),
   computed: {
     permitId(): string {
@@ -91,14 +102,20 @@ export default {
     permitEmail(): string {
       return this.permitData?.email || ''
     },
+    permitStartsAtRaw(): string {
+      return this.permitData?.startsAt || ''
+    },
     permitStartsAt(): string {
-      const d = this.permitData?.startsAt || ''
+      const d = this.permitStartsAtRaw
       if (!d?.length) return '--'
 
       return `${toLocaleDateString(d)} klo ${toLocaleTimeString(d)}`
     },
+    permitEndsAtRaw(): string {
+      return this.permitData?.endsAt || ''
+    },
     permitEndsAt(): string {
-      const d = this.permitData?.endsAt || ''
+      const d = this.permitEndsAtRaw
       if (!d?.length) return '--'
 
       return `${toLocaleDateString(d)} klo ${toLocaleTimeString(d)}`
@@ -119,13 +136,37 @@ export default {
       return path
     },
 
+    timeLeft(): string {
+      const timeLeftInMinutes = getMinutesLeftCurrently(this.permitStartsAtRaw, this.permitEndsAtRaw, this.currentTime)
+
+      return `Aikaa jäljellä: ${timeLeftInMinutes}`
+    },
+
+    permitNotStartedYet(): boolean {
+      return isBefore(this.currentTime, this.permitStartsAtRaw)
+    },
+
+    permitExpiredError(): boolean {
+      return isBefore(this.permitEndsAtRaw, this.currentTime)
+    }
+
 
   },
   mounted() {
     this.createQrCode()
+    this.runningGlock()
   },
 
   methods: {
+
+    runningGlock(): void {
+      this.currentTime = new Date()
+
+      setTimeout(() => {
+        this.runningGlock()
+      }, 1000)
+    },
+
     createQrCode(): void {
       QRCode.toCanvas(document.getElementById('canvas'), this.permitLink, {
         margin: 1,
@@ -166,6 +207,17 @@ export default {
     padding: 24px;
     max-width: 400px;
     margin: auto;
+    position: relative;
+
+    .timeleft-wrapper {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+
+      .error {
+        color: var(--error-color);
+      }
+    }
 
     .info-wrapper {
       margin: 12px 0;
